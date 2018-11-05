@@ -28,9 +28,10 @@ D = np.loadtxt('data/D.txt')
 
 img_index = 1
 
-img = Image.open('data/images/img_000{}.jpg'.format(img_index)).convert('LA')
+img = Image.open('data/images/img_000{}.jpg'.format(img_index)).convert('L')
 # img.save('greyscale.png')
-
+img = np.asarray(img)
+print('image shape: ',img.shape)
 T_C_W = positionVec2TransformMatrix(poses[img_index,:])
 temp = np.vstack([p_W_corners, np.ones((1,num_corners))])
 p_C_corners = np.matmul(T_C_W, temp)
@@ -38,12 +39,16 @@ p_C_corners = p_C_corners[0:3,:]
 
 projected_pts = project_points(p_C_corners, K, D);
 
-# figure()
-plt.imshow(img)
-plt.scatter(projected_pts[0,:], projected_pts[1,:])
-# hold off;
-#From world to camera, in oder to project it onto the image plane afterwards
-plt.show()
+
+# From world to camera, in oder to project it onto the image plane afterwards
 
 
 img_undistorted_vectorized = undistortImageVectorized(img,K,D);
+
+# figure()
+# plt.imshow(img_undistorted_vectorized)
+plt.imshow(img)
+plt.scatter(projected_pts[0,:], projected_pts[1,:])
+plt.scatter(projected_pts[0,:], projected_pts[1,:])
+# From world to camera, in oder to project it onto the image plane afterwards
+plt.show()

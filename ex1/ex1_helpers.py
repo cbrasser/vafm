@@ -65,13 +65,16 @@ def undistortImageVectorized(img, K, D):
     # px_locs = [[x,y] for x in range(0,img_width) for y in range(0,img_height)]
     # px_locs = np.hstack([X_[:],Y_[:],np.ones((nonzeros,1))])
     px_locs = np.transpose(np.array(px_locs))
-    print(px_locs.shape)
-    normalized_px_locs = np.matmul(np.power(K,-1),px_locs)
+
+    normalized_px_locs = np.matmul(np.linalg.matrix_power(K,-1),px_locs)
+
     normalized_px_locs = normalized_px_locs[0:2, :]
     normalized_dist_px_locs = distort_points(normalized_px_locs, D)
     dist_px_locs = np.matmul(K,np.vstack([normalized_dist_px_locs,
     np.ones((1,np.shape(normalized_dist_px_locs)[1]))]))
     dist_px_locs = dist_px_locs[0:2, :]
-    #dist_px_locs is nan
-    intensity_vals = img[np.round(dist_px_locs[1, :]) + np.shape(img)[0] * np.round(dist_px_locs[1, :])]
+    #indices = np.asarray([int(x) for x in np.round(dist_px_locs[1, :]) + np.shape(img)[0] * np.round(dist_px_locs[1, :])])
+
+    intensity_vals = np.reshape(img,(1,360960))
     undimg = np.uint8(np.reshape(intensity_vals, np.shape(img)))
+    return undimg
