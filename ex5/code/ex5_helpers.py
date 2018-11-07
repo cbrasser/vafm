@@ -1,5 +1,5 @@
 import numpy as np
-import scipy
+from scipy.spatial.distance import cdist
 from PIL import Image
 
 def get_disparity(left_img, right_img, patch_radius, min_disp, max_disp):
@@ -18,16 +18,16 @@ def get_disparity(left_img, right_img, patch_radius, min_disp, max_disp):
 
     for row in range(patch_radius,width-patch_radius):
         for col in range(max_disp + patch_radius,height - patch_radius):
-            left_patch = left_img[(row-r):(row+r), (col-r):(col+r)]
-            right_strip = right_img[(row-r):(row+r), (col-r-max_disp):(col+r-min_disp)]
+            left_patch = left_img[(row-r):(row+r+1), (col-r):(col+r+1)]
+            right_strip = right_img[(row-r):(row+r+1), (col-r-max_disp):(col+r-min_disp+1)]
 
-            # Transforming the patches into vectors so we can run them through pdist2
-            lpvec = left_patch[:]
-            rsvecs = np.zeros((patch_size^2, max_disp - min_disp + 1))
+
+            left_patch_vec = left_patch.reshape((121,1))
+            right_strip_vec = np.zeros((np.power(patch_size,2), max_disp - min_disp + 1))
             for i in range(0,patch_size):
-                print(rsvecs.shape)
-                # TODO: Figure out indexing here
-                rsvecs[((i-1)*patch_size+1):(i*patch_size), :] = right_strip[:, i:(max_disp - min_disp + i)]
-            ssd = scipy.spatial.distance.pdist(disp_img,metric='euclidean')
+                right_strip_vec[((i)*patch_size):((i+1)*patch_size), :] = right_strip[:, i:(max_disp - min_disp + i + 1)]
+            ssds = cdist(np.transpose(left_patch_vec),np.transpose(right_strip_vec),metric='sqeuclidean')
+            min_ssd = np.argmin(ssds)
+            disp_img[row, col] = max_disp - min_ssd
 
     return disp_img

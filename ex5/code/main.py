@@ -30,5 +30,5 @@ zlims = [-5, 5]
 
 
 disp_img = get_disparity(left_img, right_img, patch_radius, min_disp, max_disp)
-plt.imshow(disp_img)
+plt.matshow(disp_img)
 plt.show()
